@@ -25,7 +25,7 @@ class EnrollmentScreen(ctk.CTkFrame):
         content.grid_columnconfigure(0, weight=1, uniform="col")
         content.grid_columnconfigure(1, weight=1, uniform="col")
 
-    # LEFT PANEL (Image & Camera)
+        # LEFT PANEL (Image & Camera)
         left_panel = ctk.CTkFrame(content, fg_color=THEME_COLORS["bg_card"], corner_radius=12, border_width=1, border_color=THEME_COLORS["border"])
         left_panel.grid(row=0, column=0, sticky="nsew", padx=10)
         
@@ -77,7 +77,7 @@ class EnrollmentScreen(ctk.CTkFrame):
         )
         self.btn_load_image.pack(fill="x", padx=25, pady=(0, 20))
 
-    # RIGHT PANEL (Information Form)
+        # RIGHT PANEL (Information Form)
         right_panel = ctk.CTkFrame(content, fg_color=THEME_COLORS["bg_card"], corner_radius=12, border_width=1, border_color=THEME_COLORS["border"])
         right_panel.grid(row=0, column=1, sticky="nsew", padx=10)
 
@@ -86,14 +86,14 @@ class EnrollmentScreen(ctk.CTkFrame):
         form_container = ctk.CTkFrame(right_panel, fg_color="transparent")
         form_container.pack(fill="both", expand=True, padx=30)
 
-        # KHỞI TẠO TỪ ĐIỂN ĐỂ QUẢN LÝ CÁC Ô NHẬP LIỆU
+        # KHỞI TẠO TỪ ĐIỂN ĐỂ QUẢN LÝ CÁC Ô NHẬP LIỆU (Đã đồng bộ sang tiếng Anh hoàn toàn)
         self.entries = {}
         fields = [
-            ("mssv", "Student ID", "Ex: 23110000"), 
-            ("hovaten", "Full Name", "Ex: Nguyen Van A"), 
-            ("lop", "Class", "Ex: 23T1"), 
+            ("student_id", "Student ID", "Ex: 23110000"), 
+            ("full_name", "Full Name", "Ex: Nguyen Van A"), 
+            ("class_name", "Class", "Ex: 23T1"), 
             ("email", "Email", "student@hcmute.edu.vn"), 
-            ("sdt", "Phone", "09xx xxx xxx")
+            ("phone", "Phone", "09xx xxx xxx")
         ]
         
         for key, label, placeholder in fields:
@@ -166,11 +166,11 @@ class EnrollmentScreen(ctk.CTkFrame):
     def dispatch_save_event(self):
         """Thu thập dữ liệu thô từ các ô nhập liệu trên UI và đẩy sang Controller xử lý"""
         self.controller.handle_save_student(
-            mssv=self.entries["mssv"].get(),
-            hovaten=self.entries["hovaten"].get(),
-            lop=self.entries["lop"].get(),
+            student_id=self.entries["student_id"].get(),
+            full_name=self.entries["full_name"].get(),
+            class_name=self.entries["class_name"].get(),
             email=self.entries["email"].get(),
-            sdt=self.entries["sdt"].get(),
+            phone=self.entries["phone"].get(),
             source_img_path=self.selected_image_path,
             reset_form_callback=self.handle_reset_form  
         )
