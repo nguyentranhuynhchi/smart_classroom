@@ -15,13 +15,13 @@ class EnrollmentController:
     def __init__(self):
         self.db = DatabaseHelper()
 
-    def handle_save_student(self, mssv, hovaten, lop, email, sdt, source_img_path, reset_form_callback):
+    def handle_save_student(self, student_id, full_name, class_name, email, phone, source_img_path, reset_form_callback):
         """
         Xử lý toàn bộ logic nghiệp vụ khi người dùng nhấn nút 'Save Student'.
         Bao gồm: Kiểm tra form -> Trích xuất Face Embedding -> Copy ảnh chuẩn hóa -> Lưu DB.
         """
         # 1. Ràng buộc 1: Kiểm tra các trường bắt buộc không được để trống
-        if not mssv or not hovaten or not lop or not email:
+        if not student_id or not full_name or not class_name or not email:
             messagebox.showerror("Lỗi dữ liệu", "Vui lòng nhập đầy đủ các trường: MSSV, Họ và tên, Lớp và Email!")
             return
 
@@ -31,8 +31,8 @@ class EnrollmentController:
             return
 
         # 3. Ràng buộc 3: Kiểm tra trùng lặp khóa chính (MSSV)
-        if self.db.check_exists("mssv", mssv):
-            messagebox.showerror("Trùng lặp dữ liệu", f"Mã số sinh viên '{mssv}' đã tồn tại trong hệ thống!")
+        if self.db.check_exists("student_id", student_id):
+            messagebox.showerror("Trùng lặp dữ liệu", f"Mã số sinh viên '{student_id}' đã tồn tại trong hệ thống!")
             return
 
         # 4. Ràng buộc 4: Kiểm tra trùng lặp Email liên lạc
@@ -41,8 +41,8 @@ class EnrollmentController:
             return
 
         # 5. Ràng buộc 5: Kiểm tra trùng lặp Số điện thoại (nếu có nhập)
-        if sdt and self.db.check_exists("sdt", sdt):
-            messagebox.showerror("Trùng lặp dữ liệu", f"Số điện thoại '{sdt}' đã được sử dụng trong hệ thống!")
+        if phone and self.db.check_exists("phone", phone):
+            messagebox.showerror("Trùng lặp dữ liệu", f"Số điện thoại '{phone}' đã được sử dụng trong hệ thống!")
             return
 
         # --- XỬ LÝ TRÍCH XUẤT FACE EMBEDDING (VISION ENGINE CHI TIẾT) ---
@@ -79,26 +79,26 @@ class EnrollmentController:
                 ext = ".jpg"
                 
             # Đổi tên file ảnh tự động theo cấu trúc chuẩn hóa: [MSSV]_[Ho_Va_Ten].[ext]
-            clean_name = hovaten.strip().replace(" ", "_")
-            target_filename = f"{mssv.strip()}_{clean_name}{ext}"
+            clean_name = full_name.strip().replace(" ", "_")
+            target_filename = f"{student_id.strip()}_{clean_name}{ext}"
             target_file_path = os.path.join(DATASET_ENROLLMENT_DIR, target_filename)
 
             # Thực hiện copy tệp ảnh từ máy tính vào kho lưu trữ cục bộ của ứng dụng
             shutil.copy2(source_img_path, target_file_path)
 
             # 7. Ghi nhận dữ liệu và chuỗi embedding vào SQLite database thông qua db_helper
-            success = self.db.insert_sinh_vien(
-                mssv=mssv.strip(),
-                hovaten=hovaten.strip(),
-                lop=lop.strip(),
+            success = self.db.insert_student(
+                student_id=student_id.strip(),
+                full_name=full_name.strip(),
+                class_name=class_name.strip(),
                 email=email.strip(),
-                sdt=sdt.strip() if sdt else None,
+                phone=phone.strip() if phone else None,
                 avatar_path=target_file_path,
                 face_embedding=embedding_json  
             )
 
             if success:
-                messagebox.showinfo("Thành công", f"Đã đăng ký thành công sinh viên: {hovaten.strip()} ({mssv.strip()}) và lưu cấu trúc Face ID thành công!")
+                messagebox.showinfo("Thành công", f"Đã đăng ký thành công sinh viên: {full_name.strip()} ({student_id.strip()}) và lưu cấu trúc Face ID thành công!")
                 # Kích hoạt hàm callback ở giao diện để clear form nhập liệu
                 reset_form_callback()
             else:
