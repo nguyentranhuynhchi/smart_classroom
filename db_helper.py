@@ -13,7 +13,6 @@ class DatabaseHelper:
         return conn
 
     def init_db(self):
-        """Khởi tạo cấu trúc bảng dữ liệu bằng tiếng Anh lúc ứng dụng khởi động"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -35,8 +34,12 @@ class DatabaseHelper:
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS LectureSession (
                 session_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                course_code TEXT NOT NULL,
                 course_name TEXT NOT NULL,
-                start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                lecture_date TEXT NOT NULL,
+                start_time TEXT NOT NULL,
+                end_time TEXT NOT NULL,
+                status TEXT DEFAULT 'scheduled' -- 'scheduled', 'ongoing', 'completed'
             )
         ''')
         
@@ -70,16 +73,55 @@ class DatabaseHelper:
         conn.commit()
         conn.close()
 
-    def create_new_lecture_session(self, course_name):
-        """Khởi tạo một phiên học mới và trả về session_id"""
+    def create_new_lecture_session(self, course_name, lecture_date, start_time, end_time):
+        """Khởi tạo một phiên học mới, tự động sinh mã bài giảng và trả về session_id"""
         conn = self.get_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO LectureSession (course_name) VALUES (?)", (course_name,))
-        session_id = cursor.lastrowid
-        conn.commit()
-        conn.close()
-        return session_id
+        try:
+            # Bước 1: Chèn dữ liệu với course_code tạm thời là trống hoặc mặc định
+            cursor.execute('''
+                INSERT INTO LectureSession (course_code, course_name, lecture_date, start_time, end_time, status) 
+                VALUES (?, ?, ?, ?, ?, 'scheduled')
+            ''', ("", course_name, lecture_date, start_time, end_time))
+            
+            session_id = cursor.lastrowid
+            
+            # Bước 2: Tự động sinh mã môn học dựa trên session_id (Ví dụ: LEC00001, LEC00002)
+            auto_course_code = f"LEC{session_id:05d}"
+            
+            # Bước 3: Cập nhật lại mã môn học vừa sinh vào DB
+            cursor.execute('''
+                UPDATE LectureSession 
+                SET course_code = ? 
+                WHERE session_id = ?
+            ''', (auto_course_code, session_id))
+            
+            conn.commit()
+            return session_id
+        except Exception as e:
+            print(f"[Error] Failed to create lecture session: {e}")
+            raise e
+        finally:
+            conn.close()
 
+    def update_lecture_session_status(self, session_id, new_status):
+        """Cập nhật trạng thái mới cho bài giảng (ví dụ: chuyển sang 'ongoing' hoặc 'completed')"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute('''
+                UPDATE LectureSession 
+                SET status = ? 
+                WHERE session_id = ?
+            ''', (new_status, session_id))
+            conn.commit()
+            return cursor.rowcount > 0
+        except Exception as e:
+            print(f"[Error] Failed to update lecture session status: {e}")
+            return False
+        finally:
+            conn.close()
+            
     def check_exists(self, field_name, value):
         """Kiểm tra sự tồn tại của trường dữ liệu trong bảng Student"""
         conn = self.get_connection()
@@ -147,5 +189,69 @@ class DatabaseHelper:
         except Exception as e:
             print(f"[Error] Failed to insert learning status: {e}")
             return False
+        finally:
+            conn.close()
+    
+    def get_next_upcoming_session(self):
+        """Lấy buổi học trạng thái chưa giảng ('scheduled') sắp bắt đầu sớm nhất"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT session_id, course_name, lecture_date, start_time, end_time, status 
+            FROM LectureSession 
+            WHERE status = 'scheduled' 
+            ORDER BY lecture_date ASC, start_time ASC LIMIT 1
+        ''')
+        row = cursor.fetchone()
+        conn.close()
+        if row:
+            return {
+                "session_id": row["session_id"], 
+                "course_name": row["course_name"], 
+                "lecture_date": row["lecture_date"],
+                "start_time": row["start_time"], 
+                "end_time": row["end_time"], 
+                "status": row["status"]
+            }
+        return None
+
+    def get_session_by_status(self, status):
+        """Lấy thông tin buổi học theo trạng thái chính xác ('scheduled', 'ongoing', 'completed')"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT session_id, course_name, lecture_date, start_time, end_time, status 
+            FROM LectureSession 
+            WHERE status = ? 
+            ORDER BY session_id DESC LIMIT 1
+        ''', (status,))
+        row = cursor.fetchone()
+        conn.close()
+        if row:
+            return {
+                "session_id": row["session_id"], 
+                "course_name": row["course_name"], 
+                "lecture_date": row["lecture_date"],
+                "start_time": row["start_time"], 
+                "end_time": row["end_time"], 
+                "status": row["status"]
+            }
+        return None
+    
+    def get_lectures_by_date(self, lecture_date):
+        """Lấy tất cả các bài giảng trong một ngày cụ thể (chỉ lấy trạng thái chưa giảng hoặc đang giảng)"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute('''
+                SELECT session_id, course_name, start_time, end_time, status 
+                FROM LectureSession 
+                WHERE lecture_date = ? AND status != 'completed'
+            ''', (lecture_date,))
+            rows = cursor.fetchall()
+            return rows
+        except Exception as e:
+            print(f"[Error] Failed to get lectures by date: {e}")
+            return []
         finally:
             conn.close()

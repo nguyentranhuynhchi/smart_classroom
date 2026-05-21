@@ -3,7 +3,7 @@ import os
 import customtkinter as ctk
 from PIL import Image
 from gui.theme import THEME_COLORS, FONT_FAMILY
-from gui.constants import TEXT_ICONS, IMAGE_ASSETS # Import hằng số doanh nghiệp
+from gui.constants import TEXT_ICONS, IMAGE_ASSETS 
 
 class Sidebar(ctk.CTkFrame):
     def __init__(self, parent, on_menu_select):
@@ -20,6 +20,7 @@ class Sidebar(ctk.CTkFrame):
         self.init_ui()
 
     def _load_icon(self, filename, fallback_text):
+        """Hàm tải icon, nếu lỗi sẽ dùng text fallback"""
         try:
             path = os.path.join(os.path.dirname(__file__), "..", "..", "assets", "icons", filename)
             return ctk.CTkImage(light_image=Image.open(path), size=(20, 20)), ""
@@ -27,29 +28,31 @@ class Sidebar(ctk.CTkFrame):
             return None, f"{fallback_text}  "
 
     def init_ui(self):
-        # Logo Section
+        # Khu vực Logo
         logo_frame = ctk.CTkFrame(self, fg_color="transparent")
         logo_frame.pack(pady=(30, 25), padx=20, fill="x")
         
         ctk.CTkLabel(
-            logo_frame, text="Smart Classroom", 
+            logo_frame, text="Lớp Học Thông Minh", 
             font=(FONT_FAMILY, 18, "bold"), text_color=THEME_COLORS["text_main"], justify="left"
         ).pack(anchor="w")
         
         ctk.CTkLabel(
-            logo_frame, text="AI Engine v2.0", 
+            logo_frame, text="version v1.0", 
             font=(FONT_FAMILY, 12), text_color=THEME_COLORS["primary"], justify="left"
         ).pack(anchor="w", pady=(0, 10))
 
-        # Menu Items - Gọi dữ liệu từ IMAGE_ASSETS và TEXT_ICONS
+        # Danh sách các mục Menu 
         menu_items = [
-            ("overview", "Dashboard", IMAGE_ASSETS["icon_dashboard"], TEXT_ICONS["dashboard_fallback"]),
-            ("enrollment", "Enrollment", IMAGE_ASSETS["icon_enrollment"], TEXT_ICONS["enrollment_fallback"]),
-            ("session", "Session Setup", IMAGE_ASSETS["icon_session"], TEXT_ICONS["session_fallback"]),
-            ("lecture", "Live Lecture", IMAGE_ASSETS["icon_lecture"], TEXT_ICONS["lecture_fallback"]),
-            ("account", "Account", IMAGE_ASSETS["icon_account"], TEXT_ICONS["account_fallback"])
+            ("overview", "Tổng Quan", IMAGE_ASSETS["icon_dashboard"], TEXT_ICONS["dashboard_fallback"]),
+            ("enrollment", "Ghi Danh Sinh Viên", IMAGE_ASSETS["icon_enrollment"], TEXT_ICONS["enrollment_fallback"]),
+            ("session", "Thiết Lập Phiên", IMAGE_ASSETS["icon_session"], TEXT_ICONS["session_fallback"]),
+            ("lecture_lobby", "Sảnh Chờ", IMAGE_ASSETS["icon_lecture_lobby"], TEXT_ICONS["lecture_lobby_fallback"]),
+            ("lecture", "Phòng Học", IMAGE_ASSETS["icon_lecture"], TEXT_ICONS["lecture_fallback"]),
+            ("account", "Tài Khoản", IMAGE_ASSETS["icon_account"], TEXT_ICONS["account_fallback"])
         ]
-        
+
+        # Tạo các nút điều hướng
         for screen_id, text, icon_file, fallback in menu_items:
             img, prefix = self._load_icon(icon_file, fallback)
             btn = ctk.CTkButton(
@@ -61,7 +64,7 @@ class Sidebar(ctk.CTkFrame):
             btn.pack(fill="x", padx=15, pady=4)
             self.buttons[screen_id] = btn
 
-        # Footer User Profile
+        # Khu vực Hồ sơ người dùng ở cuối Sidebar
         footer_frame = ctk.CTkFrame(self, fg_color=THEME_COLORS["bg_card"], corner_radius=12)
         footer_frame.pack(side="bottom", fill="x", pady=25, padx=15)
         
@@ -73,12 +76,13 @@ class Sidebar(ctk.CTkFrame):
         user_avatar.pack(side="left", padx=12, pady=12)
         
         info_text = ctk.CTkLabel(
-            footer_frame, text="Admin User\nadmin@hcmute.edu", 
+            footer_frame, text="Quản Trị Viên\nadmin@hcmute.edu.vn", 
             font=(FONT_FAMILY, 11), text_color=THEME_COLORS["text_muted"], justify="left"
         )
         info_text.pack(side="left", pady=12)
 
     def handle_click(self, screen_id):
+        """Xử lý sự kiện khi click vào một mục menu"""
         if self.current_active == screen_id:
             return
             
