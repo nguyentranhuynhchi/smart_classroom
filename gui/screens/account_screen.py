@@ -16,25 +16,25 @@ class AccountScreen(ctk.CTkFrame):
         inner = ctk.CTkFrame(card, fg_color="transparent")
         inner.pack(padx=50, pady=50) # Tạo không gian thở cho form
         
-        ctk.CTkLabel(inner, text="Account", font=(FONT_FAMILY, 24, "bold"), text_color=THEME_COLORS["text_main"]).pack()
-        ctk.CTkLabel(inner, text="Manage your classroom account", font=(FONT_FAMILY, 12), text_color=THEME_COLORS["text_muted"]).pack(pady=(5, 30))
+        ctk.CTkLabel(inner, text="Tài Khoản", font=(FONT_FAMILY, 24, "bold"), text_color=THEME_COLORS["text_main"]).pack()
+        ctk.CTkLabel(inner, text="Quản lý tài khoản lớp học của bạn", font=(FONT_FAMILY, 12), text_color=THEME_COLORS["text_muted"]).pack(pady=(5, 30))
         
-        # Tabs
+        # Tabs Đăng nhập / Đăng ký
         tab_frame = ctk.CTkFrame(inner, fg_color=THEME_COLORS["bg_dark"], corner_radius=8)
         tab_frame.pack(fill="x", pady=(0, 20))
-        ctk.CTkButton(tab_frame, text="Login", fg_color=THEME_COLORS["primary"], corner_radius=8, width=100).pack(side="left", expand=True, fill="both", padx=2, pady=2)
-        ctk.CTkButton(tab_frame, text="Register", fg_color="transparent", text_color=THEME_COLORS["text_muted"], width=100).pack(side="left", expand=True, fill="both")
+        ctk.CTkButton(tab_frame, text="Đăng Nhập", fg_color=THEME_COLORS["primary"], corner_radius=8, width=100).pack(side="left", expand=True, fill="both", padx=2, pady=2)
+        ctk.CTkButton(tab_frame, text="Đăng Ký", fg_color="transparent", text_color=THEME_COLORS["text_muted"], width=100).pack(side="left", expand=True, fill="both")
 
-        # Form
-        ctk.CTkLabel(inner, text="Username", font=(FONT_FAMILY, 12), text_color=THEME_COLORS["text_muted"]).pack(anchor="w")
-        ctk.CTkEntry(inner, placeholder_text="Enter username", fg_color=THEME_COLORS["bg_dark"], border_color=THEME_COLORS["border"], height=40).pack(fill="x", pady=(5, 15))
+        # Form Đăng nhập
+        ctk.CTkLabel(inner, text="Tên Đăng Nhập", font=(FONT_FAMILY, 12), text_color=THEME_COLORS["text_muted"]).pack(anchor="w")
+        ctk.CTkEntry(inner, placeholder_text="Nhập tên đăng nhập", fg_color=THEME_COLORS["bg_dark"], border_color=THEME_COLORS["border"], height=40).pack(fill="x", pady=(5, 15))
         
-        ctk.CTkLabel(inner, text="Password", font=(FONT_FAMILY, 12), text_color=THEME_COLORS["text_muted"]).pack(anchor="w")
-        ctk.CTkEntry(inner, placeholder_text="Enter password", show="*", fg_color=THEME_COLORS["bg_dark"], border_color=THEME_COLORS["border"], height=40).pack(fill="x", pady=(5, 15))
+        ctk.CTkLabel(inner, text="Mật Khẩu", font=(FONT_FAMILY, 12), text_color=THEME_COLORS["text_muted"]).pack(anchor="w")
+        ctk.CTkEntry(inner, placeholder_text="Nhập mật khẩu", show="*", fg_color=THEME_COLORS["bg_dark"], border_color=THEME_COLORS["border"], height=40).pack(fill="x", pady=(5, 15))
         
         bot_form = ctk.CTkFrame(inner, fg_color="transparent")
         bot_form.pack(fill="x", pady=(0, 25))
-        ctk.CTkCheckBox(bot_form, text="Remember me", font=(FONT_FAMILY, 11), fg_color=THEME_COLORS["primary"]).pack(side="left")
-        ctk.CTkLabel(bot_form, text="Forgot password?", font=(FONT_FAMILY, 11), text_color=THEME_COLORS["primary_light"], cursor="hand2").pack(side="right")
+        ctk.CTkCheckBox(bot_form, text="Ghi nhớ đăng nhập", font=(FONT_FAMILY, 11), fg_color=THEME_COLORS["primary"]).pack(side="left")
+        ctk.CTkLabel(bot_form, text="Quên mật khẩu?", font=(FONT_FAMILY, 11), text_color=THEME_COLORS["primary_light"], cursor="hand2").pack(side="right")
         
-        ctk.CTkButton(inner, text="Login", font=(FONT_FAMILY, 14, "bold"), fg_color=THEME_COLORS["primary"], height=45).pack(fill="x")
+        ctk.CTkButton(inner, text="Đăng Nhập", font=(FONT_FAMILY, 14, "bold"), fg_color=THEME_COLORS["primary"], height=45).pack(fill="x")
